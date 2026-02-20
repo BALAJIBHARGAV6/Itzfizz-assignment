@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITZFIZZ — Redefine Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#e8192c;--red2:#ff3347;--red-dim:#8b0f1a;
+  --gold:#d4a843;--gold2:#f0c84a;
+  --dark:#06060a;--dark2:#0c0c14;--dark3:#111120;
+  --white:#f0ece4;--gray:#5a5a6e;--gray2:#8888a0;
+}
+html{overflow-x:hidden;scroll-behavior:smooth}
+body{background:var(--dark);color:var(--white);font-family:'Rajdhani',sans-serif;cursor:none;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--dark)}::-webkit-scrollbar-thumb{background:var(--red)}
+
+/* CURSOR */
+#cdot{position:fixed;width:7px;height:7px;background:var(--red);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .2s,background .2s}
+#cring{position:fixed;width:34px;height:34px;border:1px solid rgba(232,25,44,.55);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .28s,height .28s,border-color .28s}
+.hover-cur #cdot{transform:translate(-50%,-50%) scale(2.5)}
+.hover-cur #cring{width:54px;height:54px;border-color:rgba(232,25,44,.9)}
+
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--dark);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:44px;overflow:hidden}
+.ld-scan{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);animation:ldScan 1.4s linear infinite}
+@keyframes ldScan{from{top:0}to{top:100%}}
+.ld-logo{display:flex;gap:2px}
+.ld-logo span{font-family:'Anton',sans-serif;font-size:clamp(56px,9vw,100px);letter-spacing:.05em;display:inline-block;opacity:0;transform:translateY(70px) skewX(-10deg)}
+.ld-wrap{width:clamp(220px,35vw,380px)}
+.ld-bg{height:1px;background:rgba(255,255,255,.07);position:relative}
+.ld-fill{height:1px;width:0%;background:var(--red);box-shadow:0 0 14px var(--red),0 0 28px var(--red-dim);transition:width .07s linear;position:relative}
+.ld-fill::after{content:'';position:absolute;right:-4px;top:-3px;width:8px;height:8px;background:var(--red);border-radius:50%;box-shadow:0 0 12px var(--red)}
+.ld-meta{display:flex;justify-content:space-between;margin-top:12px}
+.ld-pct{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--red);letter-spacing:.1em}
+.ld-status{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:.3em;text-transform:uppercase}
+
+/* CANVAS */
+#pcanvas{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:clamp(14px,2.5vh,22px) clamp(20px,5vw,80px);display:flex;justify-content:space-between;align-items:center}
+nav::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,10,.95),transparent);z-index:-1;pointer-events:none}
+.nav-logo{font-family:'Anton',sans-serif;font-size:clamp(17px,2vw,24px);letter-spacing:.18em;color:var(--white);text-decoration:none}
+.nav-logo em{font-style:normal;color:var(--red)}
+.nav-links{display:flex;gap:clamp(18px,2.5vw,44px);align-items:center}
+.nav-links a{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gray2);text-decoration:none;font-weight:600;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{
+  padding:10px 26px;
+  background:var(--red);
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.32em;
+  color:#fff;
+  text-decoration:none;
+  text-transform:uppercase;
+  overflow:hidden;
+  position:relative;
+  transition:box-shadow .3s,transform .2s;
+  box-shadow:0 0 0 rgba(232,25,44,0);
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+.nav-cta::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#ff3347,#e8192c);opacity:0;transition:opacity .3s}
+.nav-cta::after{content:'→';position:absolute;right:-20px;top:50%;transform:translateY(-50%);font-size:12px;transition:right .3s,opacity .3s;opacity:0}
+.nav-cta:hover{box-shadow:0 6px 28px rgba(232,25,44,.45);transform:translateY(-1px)}
+.nav-cta:hover::before{opacity:1}
+.nav-cta:hover::after{right:12px;opacity:1}
+@media(max-width:640px){
+  nav{padding:12px 18px}
+  .nav-links a:not(.nav-cta){display:none}
+  .nav-cta{padding:8px 16px;font-size:11px;letter-spacing:.2em;clip-path:none}
+  .nav-logo{font-size:16px;letter-spacing:.14em}
+}
+
+/* ═══════════════════════════════════════
+   HERO — DESKTOP / LAPTOP LAYOUT
+   Two-column: text LEFT (45%) | car RIGHT (55%)
+   ═══════════════════════════════════════ */
+#hero{
+  position:relative;
+  height:100vh;
+  min-height:600px;
+  display:grid;
+  grid-template-columns:45% 55%;
+  align-items:center;
+  overflow:hidden;
+  z-index:1;
+}
+.h-stripe{
+  position:absolute;right:0;top:0;bottom:0;width:55%;
+  background:linear-gradient(135deg,transparent 0%,rgba(232,25,44,.04) 50%,rgba(232,25,44,.09) 100%);
+  pointer-events:none;
+}
+.h-stripe::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(232,25,44,.45) 20%,rgba(232,25,44,.45) 80%,transparent);
+}
+.h-grid{
+  position:absolute;inset:0;opacity:.025;
+  background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);
+  background-size:70px 70px;pointer-events:none;
+}
+
+/* ── HERO LEFT COLUMN ── */
+.hero-l{
+  position:relative;
+  z-index:3;
+  padding:0 clamp(24px,4vw,72px);
+  padding-top:80px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  height:100%;
+  overflow:hidden;
+}
+.h-eyebrow{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:clamp(12px,2vh,22px);
+  opacity:0;transform:translateY(8px);
+}
+.ey-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+  background:var(--red);box-shadow:0 0 8px var(--red);
+  animation:ebPulse 2.2s ease-in-out infinite;
+}
+@keyframes ebPulse{
+  0%,100%{box-shadow:0 0 8px var(--red)}
+  50%{box-shadow:0 0 18px var(--red),0 0 36px var(--red-dim)}
+}
+.ey-text{font-size:10px;letter-spacing:.38em;color:var(--gray2);text-transform:uppercase;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* HEADLINE ROWS — fit cleanly inside left col */
+.hl-row{display:block;overflow:hidden;line-height:.88;}
+.hl-inner{display:block;transform:translateY(108%);font-family:'Anton',sans-serif;white-space:nowrap;}
+.hl-1 .hl-inner{font-size:clamp(52px,7.5vw,128px);color:var(--white);letter-spacing:.04em;}
+.hl-2 .hl-inner{font-size:clamp(48px,6.8vw,116px);-webkit-text-stroke:1.5px rgba(255,255,255,.14);color:transparent;letter-spacing:.09em;}
+.hl-3 .hl-inner{font-size:clamp(52px,7.5vw,128px);color:var(--red);letter-spacing:.04em;text-shadow:0 0 60px rgba(232,25,44,.3);}
+
+.h-sub{
+  font-size:clamp(13px,1.15vw,15px);color:var(--gray2);line-height:1.75;
+  max-width:min(400px,90%);
+  margin-top:clamp(12px,2.2vh,28px);
+  font-weight:400;opacity:0;transform:translateY(14px);
+}
+.h-ctas{
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  margin-top:clamp(16px,2.8vh,36px);
+  opacity:0;transform:translateY(14px);
+}
+.btn-p{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:clamp(10px,1.4vh,14px) clamp(20px,2vw,30px);
+  background:var(--red);font-family:'Anton',sans-serif;
+  font-size:clamp(11px,1vw,14px);letter-spacing:.2em;
+  color:#fff;text-decoration:none;text-transform:uppercase;
+  transition:transform .2s,box-shadow .2s;white-space:nowrap;
+}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(232,25,44,.38);}
+.btn-s{
+  font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--gray2);text-decoration:none;font-weight:600;
+  border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:3px;
+  transition:color .2s,border-color .2s;white-space:nowrap;
+}
+.btn-s:hover{color:var(--white);border-color:rgba(255,255,255,.5);}
+
+.h-stats{
+  display:flex;gap:clamp(12px,2.5vw,40px);
+  margin-top:clamp(16px,3.5vh,44px);
+  flex-wrap:wrap;opacity:0;
+}
+.hs{border-left:2px solid var(--red);padding-left:12px;}
+.hs-n{font-family:'Anton',sans-serif;font-size:clamp(20px,2.6vw,38px);color:var(--white);line-height:1;}
+.hs-l{font-size:9px;letter-spacing:.28em;color:var(--gray);text-transform:uppercase;margin-top:3px;font-weight:600;}
+
+/* SCROLL HINT */
+.scr-hint{
+  position:absolute;bottom:22px;left:clamp(24px,4vw,72px);
+  display:flex;align-items:center;gap:12px;z-index:4;opacity:0;
+}
+@media(max-width:860px){.scr-hint{display:none;}}
+.scr-ln{width:40px;height:1px;background:var(--red);animation:scrLn 2s ease-in-out infinite;}
+@keyframes scrLn{0%,100%{width:40px}50%{width:64px}}
+.scr-tx{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:var(--gray);font-family:'Share Tech Mono',monospace;}
+
+/* ── CAR — RIGHT COLUMN ── */
+.car-wrap{
+  position:relative;
+  z-index:2;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
+  pointer-events:none;
+  overflow:visible;
+}
+.car-wrap svg{
+  width:clamp(480px,90%,820px);
+  height:auto;
+  display:block;
+  margin-left:-5%;
+  filter:drop-shadow(0 20px 50px rgba(232,25,44,.22)) drop-shadow(0 0 100px rgba(232,25,44,.07));
+}
+
+/* ── On mobile, ALL hero elements start visible (GSAP handles desktop-only fade-in) ── */
+@media(max-width:860px){
+  .h-eyebrow{ opacity:1 !important; transform:none !important; }
+  .h-sub    { opacity:1 !important; transform:none !important; }
+  .h-ctas   { opacity:1 !important; transform:none !important; }
+  .h-stats  { opacity:1 !important; }
+  .hl-inner { transform:translateY(0) !important; }
+  .car-wrap svg { opacity:1 !important; }
+}
+
+/* ══════════════════════════════════════
+   LARGE LAPTOP / WIDE  ≤1200px
+   ══════════════════════════════════════ */
+@media(max-width:1200px){
+  .hl-1 .hl-inner{font-size:clamp(52px,7vw,108px);}
+  .hl-2 .hl-inner{font-size:clamp(48px,6.4vw,98px);}
+  .hl-3 .hl-inner{font-size:clamp(52px,7vw,108px);}
+  .car-wrap svg{width:clamp(400px,88%,700px);}
+}
+
+/* ══════════════════════════════════════
+   TABLET  861px – 1100px
+   ══════════════════════════════════════ */
+@media(max-width:1100px){
+  #hero{grid-template-columns:50% 50%;}
+  .hl-1 .hl-inner{font-size:clamp(48px,6.5vw,92px);}
+  .hl-2 .hl-inner{font-size:clamp(44px,6vw,84px);}
+  .hl-3 .hl-inner{font-size:clamp(48px,6.5vw,92px);}
+  .car-wrap svg{width:clamp(380px,95%,620px);}
+}
+
+/* ══════════════════════════════════════
+   TABLET  ≤860px — VERTICAL STACK
+   Text top | Car bottom strip
+   ══════════════════════════════════════ */
+@media(max-width:860px){
+  #hero{
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:auto minmax(220px,38vh);
+    height:100dvh;
+    min-height:640px;
+    position:relative;
+    overflow:hidden;
+  }
+  .h-stripe{width:100%;clip-path:none;opacity:.4;}
+  .hero-l{
+    grid-row:1;
+    width:100%;
+    padding:88px 32px 20px;
+    height:auto;
+    justify-content:flex-start;
+    overflow:visible;
+    z-index:3;
+  }
+  /* Force visible — override GSAP initial opacity:0 on mobile */
+  .h-eyebrow,.h-sub,.h-ctas,.h-stats{ opacity:1 !important; transform:none !important; }
+  .car-wrap{
+    grid-row:2;
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    overflow:visible;
+    opacity:1 !important;
+    z-index:2;
+  }
+  .car-wrap svg{
+    width:min(580px,95vw);
+    margin-left:0;
+    filter:drop-shadow(0 0 40px rgba(232,25,44,.3));
+  }
+  .hl-1 .hl-inner{font-size:clamp(50px,9.5vw,80px);}
+  .hl-2 .hl-inner{font-size:clamp(46px,8.8vw,74px);}
+  .hl-3 .hl-inner{font-size:clamp(50px,9.5vw,80px);}
+  .h-sub{max-width:100%;font-size:14px;}
+  .h-stats{gap:clamp(14px,3vw,32px);}
+  .scr-hint{display:none;}
+}
+
+/* ══════════════════════════════════════
+   MOBILE  ≤600px  — iPhone / Android
+   ══════════════════════════════════════ */
+@media(max-width:600px){
+  #hero{
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:1fr minmax(140px,24vh);
+    height:100dvh;
+    min-height:580px;
+  }
+  .h-stripe{display:none;}
+  .h-grid{display:none;}
+
+  /* Text block */
+  .hero-l{
+    grid-row:1;
+    padding:74px 20px 14px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    overflow:visible;
+    z-index:3;
+    height:auto;
+    align-self:stretch;
+  }
+
+  /* CRITICAL: override GSAP opacity:0 initial states */
+  .h-eyebrow{ opacity:1 !important; transform:none !important; margin-bottom:7px; }
+  .h-sub    { opacity:1 !important; transform:none !important; }
+  .h-ctas   { opacity:1 !important; transform:none !important; }
+  .h-stats  { opacity:1 !important; }
+
+  .ey-dot{width:5px;height:5px;}
+  .ey-text{font-size:8px;letter-spacing:.2em;}
+
+  /* Headlines */
+  .hl-row{line-height:.87;}
+  .hl-1 .hl-inner{font-size:clamp(40px,11.8vw,62px);letter-spacing:.03em;}
+  .hl-2 .hl-inner{
+    font-size:clamp(36px,10.8vw,57px);
+    letter-spacing:.06em;
+    -webkit-text-stroke:1px rgba(255,255,255,.13);
+  }
+  .hl-3 .hl-inner{font-size:clamp(40px,11.8vw,62px);letter-spacing:.03em;}
+
+  /* Sub-text */
+  .h-sub{
+    font-size:12px;
+    line-height:1.58;
+    margin-top:9px;
+    max-width:100%;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+
+  /* CTA row */
+  .h-ctas{
+    margin-top:10px;
+    gap:10px;
+    flex-wrap:nowrap;
+    align-items:center;
+  }
+  .btn-p{
+    padding:9px 16px;
+    font-size:10px;
+    letter-spacing:.12em;
+    flex-shrink:0;
+  }
+  .btn-s{
+    font-size:9px;
+    letter-spacing:.14em;
+    white-space:nowrap;
+  }
+
+  /* Stats 4-col compact */
+  .h-stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
+    margin-top:10px;
+    width:100%;
+  }
+  .hs{ border-left:1.5px solid var(--red); padding-left:8px; }
+  .hs-n{ font-size:15px; line-height:1; }
+  .hs-l{ font-size:6px; letter-spacing:.1em; margin-top:2px; }
+  .scr-hint{display:none;}
+
+  /* Car strip */
+  .car-wrap{
+    grid-row:2;
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    overflow:hidden;
+    opacity:1 !important;
+    z-index:2;
+  }
+  .car-wrap svg{
+    width:min(420px,108vw);
+    margin-bottom:-4px;
+    filter:
+      drop-shadow(0 0 28px rgba(232,25,44,.35))
+      drop-shadow(0 -8px 22px rgba(232,25,44,.1));
+  }
+}
+
+/* ══════════════════════════════════════
+   SMALL PHONE  ≤420px
+   ══════════════════════════════════════ */
+@media(max-width:420px){
+  #hero{grid-template-rows:1fr minmax(120px,20vh);}
+  .hero-l{padding:66px 16px 12px;}
+  .hl-1 .hl-inner{font-size:clamp(34px,10.5vw,52px);}
+  .hl-2 .hl-inner{font-size:clamp(30px,9.5vw,48px);}
+  .hl-3 .hl-inner{font-size:clamp(34px,10.5vw,52px);}
+  .h-sub{font-size:11.5px;margin-top:8px;}
+  .h-ctas{margin-top:9px;gap:8px;}
+  .btn-p{padding:8px 13px;font-size:9.5px;}
+  .h-stats{margin-top:8px;gap:4px;}
+  .hs-n{font-size:14px;}
+  .car-wrap svg{width:min(350px,108vw);}
+}
+
+/* ══════════════════════════════════════
+   VERY SMALL  ≤360px
+   ══════════════════════════════════════ */
+@media(max-width:360px){
+  .hero-l{padding:62px 14px 10px;}
+  .hl-1 .hl-inner,.hl-3 .hl-inner{font-size:32px;}
+  .hl-2 .hl-inner{font-size:28px;}
+  .h-stats{grid-template-columns:repeat(2,1fr);gap:6px;}
+  .hs-n{font-size:14px;}
+  .btn-p{padding:7px 11px;font-size:9px;}
+  .car-wrap svg{width:min(300px,108vw);}
+}
+
+/* ── PINNED ── */
+#pin-wrap{height:500vh;background:var(--dark)}
+.pin-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.pin-rule{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,25,44,.25),transparent)}
+.pin-rt{top:0;bottom:auto}
+.ghost-n{position:absolute;font-family:'Anton',sans-serif;font-size:clamp(240px,40vw,560px);color:rgba(232,25,44,.035);pointer-events:none;line-height:1;user-select:none;letter-spacing:-.03em;z-index:0}
+
+/* story layout */
+.s-layout{position:relative;z-index:2;width:100%;max-width:1240px;padding:0 clamp(20px,5vw,80px);display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,96px);align-items:center}
+@media(max-width:700px){
+  .s-layout{grid-template-columns:1fr;gap:18px;padding:0 20px}
+  .s-right{display:none}
+  .pg-dots{right:10px}
+}
+@media(max-width:480px){
+  .s-title{font-size:clamp(36px,11vw,60px)}
+  .s-body{font-size:13px}
+  .ghost-n{font-size:clamp(180px,55vw,340px)}
+}
+.s-idx{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.4em;color:var(--red);margin-bottom:18px;display:flex;align-items:center;gap:12px}
+.s-idx::before{content:'';width:28px;height:1px;background:var(--red)}
+.s-title{font-family:'Anton',sans-serif;font-size:clamp(40px,5.5vw,82px);line-height:.9;letter-spacing:.02em;margin-bottom:22px}
+.s-title em{font-style:normal;color:var(--red)}
+.s-body{font-size:clamp(13px,1.3vw,15px);line-height:1.82;color:var(--gray2);max-width:440px;font-weight:400}
+.s-bar-w{height:1px;background:rgba(255,255,255,.07);margin-top:28px;overflow:hidden}
+.s-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--red),var(--gold));transition:width .85s cubic-bezier(.16,1,.3,1)}
+
+.s-right{display:flex;flex-direction:column;gap:18px}
+.s-metric{padding:clamp(14px,2vh,24px);border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden;transition:border-color .3s}
+.s-metric::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:transform .4s}
+.s-metric:hover{border-color:rgba(232,25,44,.28)}
+.s-metric:hover::before{transform:scaleY(1)}
+.sm-n{font-family:'Anton',sans-serif;font-size:clamp(26px,3.2vw,44px);color:var(--red);line-height:1}
+.sm-l{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--gray);margin-top:3px;font-weight:600}
+.sm-d{font-size:clamp(11px,1.1vw,13px);color:var(--gray2);margin-top:6px;line-height:1.6}
+
+/* progress dots */
+.pg-dots{position:absolute;right:clamp(18px,3vw,52px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;z-index:10}
+.pd{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .35s}
+.pd.on{background:var(--red);box-shadow:0 0 10px var(--red);transform:scale(1.5)}
+
+/* marquee */
+.mq-band{position:absolute;bottom:0;left:0;right:0;overflow:hidden;border-top:1px solid rgba(232,25,44,.13);padding:12px 0;background:rgba(6,6,10,.65);backdrop-filter:blur(8px)}
+.mq-track{display:flex;white-space:nowrap;animation:mqRoll 20s linear infinite}
+.mq-track span{font-family:'Anton',sans-serif;font-size:clamp(10px,1.3vw,13px);letter-spacing:.4em;text-transform:uppercase;color:rgba(232,25,44,.45);padding:0 28px}
+.mq-track span.dot{color:var(--gold);padding:0 4px;font-size:.6em}
+@keyframes mqRoll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── LIGHT SECTION ── */
+#light{background:#ededea;color:var(--dark);position:relative;z-index:2;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.lt-noise{position:absolute;inset:0;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none}
+.lt-bar{position:absolute;top:0;left:0;bottom:0;width:clamp(3px,0.4vw,6px);background:var(--red)}
+.lt-inner{padding:clamp(48px,10vh,120px) clamp(20px,6vw,100px);display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,5vw,96px);align-items:center;position:relative;z-index:1}
+@media(max-width:768px){.lt-inner{grid-template-columns:1fr;padding:48px 20px}}
+@media(max-width:480px){.lt-h{font-size:clamp(44px,14vw,72px)}.lt-p{font-size:14px}}
+.lt-kick{font-size:10px;letter-spacing:.5em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-family:'Share Tech Mono',monospace}
+.lt-kick::after{content:'';flex:0 0 60px;height:1px;background:rgba(232,25,44,.35)}
+.lt-h{font-family:'Anton',sans-serif;font-size:clamp(50px,7.5vw,112px);line-height:.88;letter-spacing:.02em;margin-bottom:26px}
+.lt-h em{font-style:normal;color:var(--red)}
+.lt-p{font-size:clamp(14px,1.5vw,17px);line-height:1.88;color:#3a3a3a;max-width:460px;font-weight:400}
+.lt-cta{display:inline-flex;align-items:center;gap:14px;margin-top:34px;font-family:'Anton',sans-serif;font-size:clamp(12px,1.2vw,15px);letter-spacing:.22em;color:var(--dark);text-decoration:none;text-transform:uppercase;padding-bottom:5px;border-bottom:2px solid var(--dark);transition:gap .3s,color .2s,border-color .2s}
+.lt-cta:hover{color:var(--red);border-color:var(--red);gap:22px}
+
+/* spec card */
+.spec{background:var(--dark);padding:clamp(26px,4vw,50px);position:relative;overflow:hidden}
+.spec::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,25,44,.07),transparent 60%)}
+.spec-tag{font-size:9px;letter-spacing:.5em;text-transform:uppercase;color:var(--gray);font-family:'Share Tech Mono',monospace;margin-bottom:20px}
+.spec-model{font-family:'Anton',sans-serif;font-size:clamp(30px,4.2vw,60px);color:var(--white);line-height:.95;margin-bottom:6px}
+.spec-model em{font-style:normal;color:var(--red)}
+.spec-badge{display:inline-block;margin-top:10px;padding:4px 14px;border:1px solid rgba(232,25,44,.45);font-size:9px;letter-spacing:.3em;color:var(--red);text-transform:uppercase;font-family:'Share Tech Mono',monospace}
+.spec-div{height:1px;background:rgba(255,255,255,.07);margin:24px 0}
+.spec-g{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.sp-n{font-family:'Anton',sans-serif;font-size:clamp(20px,2.6vw,36px);color:var(--white);line-height:1}
+.sp-n small{font-size:.42em;color:var(--gold)}
+.sp-l{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gray);margin-top:3px;font-family:'Share Tech Mono',monospace}
+.sp-bar{height:2px;background:rgba(255,255,255,.07);margin-top:14px;overflow:hidden}
+.sp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--red),var(--gold));transition:width 1.3s cubic-bezier(.16,1,.3,1)}
+
+/* ── FEATURES ── */
+#features{background:var(--dark2);padding:clamp(60px,10vh,120px) clamp(24px,6vw,100px);position:relative;z-index:2;overflow:hidden}
+.ft-head{text-align:center;margin-bottom:clamp(40px,8vh,80px)}
+.ft-kick{font-size:10px;letter-spacing:.5em;text-transform:uppercase;color:var(--red);font-family:'Share Tech Mono',monospace;margin-bottom:14px}
+.ft-h{font-family:'Anton',sans-serif;font-size:clamp(38px,6.5vw,96px);line-height:.9;color:var(--white)}
+.ft-h em{font-style:normal;-webkit-text-stroke:1.5px rgba(255,255,255,.18);color:transparent}
+.ft-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.05)}
+@media(max-width:900px){.ft-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:540px){.ft-grid{grid-template-columns:1fr}}
+.ft-card{background:var(--dark2);padding:clamp(26px,3.5vw,48px);position:relative;overflow:hidden;transition:background .3s}
+.ft-card:hover{background:var(--dark3)}
+.ft-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.ft-card:hover::after{transform:scaleX(1)}
+.ft-icon{font-size:26px;margin-bottom:18px;display:block}
+.ft-num{position:absolute;top:22px;right:26px;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.09);letter-spacing:.2em}
+.ft-t{font-family:'Anton',sans-serif;font-size:clamp(18px,2.2vw,30px);color:var(--white);margin-bottom:12px;line-height:1;letter-spacing:.03em}
+.ft-d{font-size:clamp(11px,1.1vw,13px);color:var(--gray2);line-height:1.78;font-weight:400}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.05);padding:clamp(28px,5vh,56px) clamp(20px,6vw,100px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+@media(max-width:480px){
+  footer{flex-direction:column;align-items:flex-start;gap:14px;padding:28px 20px}
+  .fr{align-items:flex-start}
+  .fr-lnk{flex-wrap:wrap;gap:14px}
+}
+.fl{font-family:'Anton',sans-serif;font-size:clamp(18px,2.2vw,28px);letter-spacing:.18em;color:var(--white);text-decoration:none}
+.fl em{font-style:normal;color:var(--red)}
+.fr{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.fr-lnk{display:flex;gap:20px}
+.fr-lnk a{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray2);text-decoration:none;font-weight:600;transition:color .2s}
+.fr-lnk a:hover{color:var(--red)}
+.fr-copy{font-size:10px;letter-spacing:.22em;color:var(--gray);text-transform:uppercase;font-family:'Share Tech Mono',monospace}
+
+.rv{opacity:0;transform:translateY(32px)}
+</style>
+</head>
+<body>
+
+<div id="cdot"></div>
+<div id="cring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-scan"></div>
+  <div class="ld-logo" id="ldLogo">
+    <span>I</span><span>T</span><span>Z</span><span>F</span><span>I</span><span>Z</span><span>Z</span>
+  </div>
+  <div class="ld-wrap">
+    <div class="ld-bg"><div class="ld-fill" id="ldFill"></div></div>
+    <div class="ld-meta">
+      <span class="ld-pct" id="ldPct">000</span>
+      <span class="ld-status">Initializing</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="pcanvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo"><em>I</em>TZFIZZ</a>
+  <div class="nav-links">
+    <a href="#pin-wrap">Fleet</a>
+    <a href="#light">Experience</a>
+    <a href="#features">About</a>
+    <a href="#light" class="nav-cta">Reserve Now</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="h-stripe"></div>
+  <div class="h-grid"></div>
+
+  <!-- LEFT COLUMN: TEXT -->
+  <div class="hero-l" id="heroL">
+    <div class="h-eyebrow" id="hEb">
+      <span class="ey-dot"></span>
+      <span class="ey-text">Premium Automotive Experience · Est. 2026</span>
+    </div>
+    <span class="hl-row hl-1"><span class="hl-inner" id="hl1">WELCOME</span></span>
+    <span class="hl-row hl-2"><span class="hl-inner" id="hl2">COME</span></span>
+    <span class="hl-row hl-3"><span class="hl-inner" id="hl3">ITZFIZZ</span></span>
+
+    <p class="h-sub" id="hSub">Where raw horsepower meets digital precision. Every mile engineered to push boundaries — redefining what's possible on four wheels.</p>
+
+    <div class="h-ctas" id="hCtas">
+      <a href="#pin-wrap" class="btn-p">Explore Fleet →</a>
+      <a href="#light" class="btn-s">Watch Film</a>
+    </div>
+
+    <div class="h-stats" id="hStats">
+      <div class="hs"><div class="hs-n">1,020</div><div class="hs-l">Horsepower</div></div>
+      <div class="hs"><div class="hs-n">2.8s</div><div class="hs-l">0–100 km/h</div></div>
+      <div class="hs"><div class="hs-n">340</div><div class="hs-l">Top Speed</div></div>
+      <div class="hs"><div class="hs-n">98%</div><div class="hs-l">Satisfaction</div></div>
+    </div>
+
+    <div class="scr-hint" id="scrHint">
+      <div class="scr-ln"></div>
+      <span class="scr-tx">Scroll</span>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: CAR SVG -->
+  <div class="car-wrap" id="carWrap">
+    <svg viewBox="0 0 980 430" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+      <defs>
+        <linearGradient id="bMain" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#d01524"/>
+          <stop offset="30%" stop-color="#a50e1a"/>
+          <stop offset="65%" stop-color="#720811"/>
+          <stop offset="100%" stop-color="#3c030a"/>
+        </linearGradient>
+        <linearGradient id="bTop" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e0182b"/>
+          <stop offset="100%" stop-color="#8c0d18"/>
+        </linearGradient>
+        <linearGradient id="bHi" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,90,90,0.28)"/>
+          <stop offset="100%" stop-color="rgba(255,90,90,0)"/>
+        </linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgba(70,110,190,0.32)"/>
+          <stop offset="100%" stop-color="rgba(15,25,70,0.12)"/>
+        </linearGradient>
+        <linearGradient id="rimG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#f2d25e"/>
+          <stop offset="40%" stop-color="#c89010"/>
+          <stop offset="100%" stop-color="#7a5200"/>
+        </linearGradient>
+        <linearGradient id="rimD" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#282828"/>
+          <stop offset="100%" stop-color="#080808"/>
+        </linearGradient>
+        <linearGradient id="diffG" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stop-color="#0a0a0a"/>
+          <stop offset="100%" stop-color="#1c0808"/>
+        </linearGradient>
+        <linearGradient id="exG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#ff6500" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#ff6500" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="hlBeam" cx="0%" cy="50%" r="100%">
+          <stop offset="0%" stop-color="rgba(210,230,255,0.45)"/>
+          <stop offset="100%" stop-color="rgba(210,230,255,0)"/>
+        </radialGradient>
+        <radialGradient id="tlGlow" cx="100%" cy="50%" r="80%">
+          <stop offset="0%" stop-color="rgba(232,25,44,0.65)"/>
+          <stop offset="100%" stop-color="rgba(232,25,44,0)"/>
+        </radialGradient>
+        <radialGradient id="gndSh" cx="50%" cy="0%" r="100%">
+          <stop offset="0%" stop-color="rgba(232,25,44,0.22)"/>
+          <stop offset="100%" stop-color="rgba(232,25,44,0)"/>
+        </radialGradient>
+        <filter id="fB" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="fR" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="8" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="fEx" x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation="13"/>
+        </filter>
+      </defs>
+
+      <!-- Ground shadow -->
+      <ellipse cx="490" cy="370" rx="395" ry="20" fill="url(#gndSh)" opacity=".75"/>
+      <ellipse cx="490" cy="375" rx="350" ry="10" fill="rgba(0,0,0,0.55)"/>
+
+      <!-- Exhaust glow -->
+      <ellipse cx="130" cy="302" rx="26" ry="7" fill="url(#exG)" filter="url(#fEx)">
+        <animate attributeName="rx" values="26;36;20;32;26" dur=".38s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".9;.5;1;.6;.9" dur=".38s" repeatCount="indefinite"/>
+      </ellipse>
+      <rect x="112" y="297" width="22" height="7" rx="3.5" fill="#180808"/>
+      <rect x="116" y="299" width="16" height="4" rx="2" fill="#241010"/>
+
+      <!-- Headlight beam -->
+      <path d="M862,205 L980,165 L980,250 L862,238" fill="url(#hlBeam)" opacity=".55"/>
+
+      <!-- LOWER SILL & BODY -->
+      <path d="M142,300 Q128,300 120,293 L114,273 Q110,256 116,242 L142,234 L840,234 Q864,236 870,252 L872,268 Q874,286 864,296 L840,300 Z" fill="url(#bMain)"/>
+
+      <!-- BODY SIDE MID -->
+      <path d="M116,242 Q110,228 116,210 L144,198 L840,198 Q868,202 872,220 L872,234 L840,234 L142,234 Z" fill="#7c0c16"/>
+
+      <!-- BODY UPPER / DOOR PANELS -->
+      <path d="M156,198 L840,198 L840,148 Q800,102 728,82 L588,68 Q508,60 436,66 L314,78 Q244,90 206,120 L166,158 Q146,178 146,198 Z" fill="url(#bTop)"/>
+
+      <!-- Highlight streak on upper body -->
+      <path d="M264,82 Q400,58 540,56 L696,66 Q748,72 782,88 L758,84 Q694,70 554,64 Q416,60 272,86 Z" fill="url(#bHi)"/>
+      <!-- Second highlight -->
+      <path d="M300,88 Q410,70 520,68 Q600,68 660,76 L650,80 Q580,72 510,72 Q400,72 296,94 Z" fill="rgba(255,180,180,0.07)"/>
+
+      <!-- ROOF / CABIN -->
+      <path d="M320,78 Q390,60 508,54 Q616,50 696,64 L778,84 Q820,98 840,130 L840,160 L822,150 Q784,112 720,94 L590,70 Q508,64 436,70 L318,84 Q256,98 218,126 L204,144 L210,120 Q248,90 320,78 Z" fill="url(#bTop)"/>
+
+      <!-- WINDSHIELD -->
+      <path d="M436,70 L576,62 Q638,60 690,74 L762,98 L752,148 L660,142 Q598,140 536,142 L456,144 Q424,144 408,140 L398,132 Z" fill="url(#glass)" stroke="rgba(100,140,240,0.18)" stroke-width="1.5"/>
+      <!-- windshield reflection -->
+      <path d="M465,74 L565,66 L655,78 L636,135 L526,138 L458,136 Z" fill="rgba(255,255,255,0.035)"/>
+      <path d="M490,70 Q540,65 578,68 L606,76 L584,82 Q546,76 498,76 Z" fill="rgba(255,255,255,0.065)"/>
+
+      <!-- REAR WINDOW -->
+      <path d="M330,82 L428,70 L410,140 L308,138 Q264,134 240,118 L236,112 L276,95 Z" fill="url(#glass)" stroke="rgba(100,140,240,0.12)" stroke-width="1"/>
+      <path d="M356,86 L418,74 L404,130 L312,128 Z" fill="rgba(255,255,255,0.025)"/>
+
+      <!-- B-PILLAR -->
+      <path d="M428,70 L442,70 L426,143 L412,142 Z" fill="rgba(18,6,8,0.88)"/>
+
+      <!-- HOOD -->
+      <path d="M752,150 L840,164 L840,198 L820,198 L820,175 Q800,154 770,150 Z" fill="url(#bTop)"/>
+      <path d="M756,160 Q792,160 820,172" fill="none" stroke="rgba(255,120,120,0.12)" stroke-width="2"/>
+      <!-- Hood vents -->
+      <rect x="782" y="157" width="28" height="5" rx="1.5" fill="rgba(10,3,6,0.9)"/>
+      <rect x="782" y="165" width="24" height="4" rx="1.5" fill="rgba(10,3,6,0.9)"/>
+      <rect x="782" y="172" width="28" height="4" rx="1.5" fill="rgba(10,3,6,0.9)"/>
+      <rect x="782" y="157" width="28" height="5" rx="1.5" fill="rgba(255,40,40,0.07)"/>
+
+      <!-- DOOR CREASE -->
+      <path d="M212,150 Q360,140 510,142 Q660,142 812,153" fill="none" stroke="rgba(255,100,100,0.1)" stroke-width="2.5"/>
+      <path d="M130,224 Q400,216 862,220" fill="none" stroke="rgba(255,80,80,0.08)" stroke-width="2"/>
+
+      <!-- DOOR HANDLES -->
+      <rect x="362" y="172" width="54" height="9" rx="4.5" fill="rgba(14,4,8,0.92)" stroke="rgba(212,168,67,0.32)" stroke-width="1"/>
+      <rect x="366" y="174" width="46" height="5" rx="2.5" fill="rgba(255,255,255,0.04)"/>
+      <rect x="568" y="170" width="52" height="9" rx="4.5" fill="rgba(14,4,8,0.92)" stroke="rgba(212,168,67,0.28)" stroke-width="1"/>
+      <rect x="572" y="172" width="44" height="5" rx="2.5" fill="rgba(255,255,255,0.04)"/>
+
+      <!-- REAR QUARTER VENT -->
+      <path d="M184,190 Q200,182 222,180 L222,196 Q200,198 184,204 Z" fill="rgba(8,2,4,0.92)"/>
+      <line x1="188" y1="184" x2="220" y2="182" stroke="rgba(232,25,44,0.28)" stroke-width="1"/>
+      <line x1="188" y1="189" x2="220" y2="188" stroke="rgba(232,25,44,0.22)" stroke-width="1"/>
+      <line x1="188" y1="194" x2="220" y2="194" stroke="rgba(232,25,44,0.18)" stroke-width="1"/>
+
+      <!-- FRONT INTAKE -->
+      <path d="M822,200 Q842,196 856,202 L858,220 Q842,222 822,220 Z" fill="rgba(6,2,4,0.95)"/>
+      <line x1="824" y1="202" x2="855" y2="203" stroke="rgba(232,25,44,0.18)" stroke-width="1.5"/>
+      <line x1="824" y1="208" x2="855" y2="209" stroke="rgba(232,25,44,0.14)" stroke-width="1.5"/>
+      <line x1="824" y1="214" x2="855" y2="215" stroke="rgba(232,25,44,0.14)" stroke-width="1.5"/>
+
+      <!-- WING MIRRORS -->
+      <path d="M206,170 L186,163 L180,174 L200,181 Z" fill="#7c0c16" stroke="rgba(255,100,100,0.12)" stroke-width="1"/>
+      <path d="M193,164 L186,163 L180,174 L187,175 Z" fill="#5e0a12"/>
+      <!-- mirror glass -->
+      <rect x="183" y="165" width="10" height="7" rx="1" fill="rgba(40,60,120,0.4)"/>
+
+      <!-- FRONT FASCIA -->
+      <path d="M840,234 Q874,240 880,262 L880,284 Q876,298 862,302 L840,302 L840,270 Q850,266 854,254 L852,242 Z" fill="#5c0a12"/>
+      <path d="M850,250 Q866,246 874,256 L874,274 Q864,282 850,282 Z" fill="rgba(6,2,4,0.95)"/>
+      <!-- front grille bars -->
+      <line x1="852" y1="255" x2="872" y2="256" stroke="rgba(255,40,40,0.18)" stroke-width="1.5"/>
+      <line x1="852" y1="261" x2="872" y2="262" stroke="rgba(255,40,40,0.14)" stroke-width="1.5"/>
+      <line x1="852" y1="267" x2="872" y2="268" stroke="rgba(255,40,40,0.14)" stroke-width="1.5"/>
+      <line x1="852" y1="273" x2="872" y2="274" stroke="rgba(255,40,40,0.14)" stroke-width="1.5"/>
+      <!-- front splitter -->
+      <rect x="840" y="299" width="48" height="6" rx="1" fill="#080204"/>
+      <path d="M840,302 L888,302" stroke="rgba(212,168,67,0.45)" stroke-width="1"/>
+
+      <!-- REAR DIFFUSER -->
+      <path d="M118,274 Q104,272 100,282 L100,296 L122,299 L138,299 Z" fill="url(#diffG)"/>
+      <line x1="108" y1="276" x2="106" y2="296" stroke="rgba(212,168,67,0.5)" stroke-width="1"/>
+      <line x1="115" y1="275" x2="113" y2="297" stroke="rgba(212,168,67,0.44)" stroke-width="1"/>
+      <line x1="122" y1="274" x2="120" y2="298" stroke="rgba(212,168,67,0.38)" stroke-width="1"/>
+      <line x1="129" y1="274" x2="127" y2="299" stroke="rgba(212,168,67,0.32)" stroke-width="1"/>
+      <path d="M100,284 L138,282" stroke="rgba(212,168,67,0.22)" stroke-width="1"/>
+      <!-- accent stripes -->
+      <path d="M138,300 L840,300" stroke="rgba(212,168,67,0.28)" stroke-width="1.5"/>
+      <path d="M138,306 L840,306" stroke="rgba(232,25,44,0.35)" stroke-width="2" fill="none"/>
+
+      <!-- ── HEADLIGHTS ── -->
+      <path d="M852,200 Q872,204 880,214 L878,236 Q868,244 852,244 L840,244 L840,200 Z" fill="rgba(8,2,4,0.95)"/>
+      <!-- DRL top -->
+      <path d="M843,202 Q862,198 877,204 L875,211 Q857,207 843,208 Z" fill="#d8e8ff" filter="url(#fB)" opacity=".92">
+        <animate attributeName="opacity" values=".92;.68;.92" dur="4s" repeatCount="indefinite"/>
+      </path>
+      <!-- Main headlight -->
+      <ellipse cx="860" cy="224" rx="11" ry="13" fill="rgba(6,14,38,0.92)" stroke="rgba(170,205,255,0.38)" stroke-width="1.5"/>
+      <ellipse cx="860" cy="224" rx="7" ry="9" fill="#c0d6ff" filter="url(#fB)" opacity=".88">
+        <animate attributeName="opacity" values=".88;.62;.88" dur="3.2s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="860" cy="224" rx="3" ry="4" fill="#ffffff"/>
+      <!-- DRL bottom strip -->
+      <path d="M843,236 Q860,234 876,238 L874,242 Q857,240 843,240 Z" fill="rgba(190,215,255,0.55)" filter="url(#fB)" opacity=".65"/>
+
+      <!-- ── TAILLIGHTS ── -->
+      <path d="M100,198 Q113,194 132,196 L136,244 L112,246 Q100,244 100,230 Z" fill="rgba(8,2,4,0.95)"/>
+      <!-- DRL strip -->
+      <path d="M103,200 Q120,196 134,198 L134,207 Q118,205 103,207 Z" fill="#e8192c" filter="url(#fR)" opacity=".9">
+        <animate attributeName="opacity" values=".9;.52;.9" dur="2.8s" repeatCount="indefinite"/>
+      </path>
+      <!-- Main taillight -->
+      <ellipse cx="115" cy="225" rx="10" ry="12" fill="rgba(28,4,6,0.92)" stroke="rgba(232,25,44,0.52)" stroke-width="2"/>
+      <ellipse cx="115" cy="225" rx="6" ry="8" fill="#e8192c" filter="url(#fR)" opacity=".95">
+        <animate attributeName="opacity" values=".95;.48;.95" dur="2s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="115" cy="225" rx="2.5" ry="3.5" fill="#ff5565"/>
+      <!-- vertical DRL bar -->
+      <path d="M100,202 L100,244" stroke="rgba(232,25,44,0.38)" stroke-width="3.5" filter="url(#fR)"/>
+      <!-- ambient glow -->
+      <ellipse cx="88" cy="224" rx="32" ry="32" fill="url(#tlGlow)" opacity=".5"/>
+
+      <!-- ── REAR WHEEL ── -->
+      <circle cx="265" cy="322" r="74" fill="#070707"/>
+      <circle cx="265" cy="322" r="68" fill="#0b0b0b"/>
+      <circle cx="265" cy="322" r="62" fill="none" stroke="#121212" stroke-width="3"/>
+      <!-- rim ring -->
+      <circle cx="265" cy="322" r="56" fill="#0e0e0e"/>
+      <circle cx="265" cy="322" r="54" fill="none" stroke="url(#rimG)" stroke-width="4.5"/>
+      <circle cx="265" cy="322" r="52" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/>
+      <!-- rim face -->
+      <circle cx="265" cy="322" r="49" fill="url(#rimD)"/>
+      <!-- 5 spokes -->
+      <g transform="translate(265,322)">
+        <g transform="rotate(0)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(72)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(144)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(216)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(288)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+      </g>
+      <!-- hub -->
+      <circle cx="265" cy="322" r="14" fill="#0e0e0e"/>
+      <circle cx="265" cy="322" r="11" fill="none" stroke="url(#rimG)" stroke-width="2"/>
+      <circle cx="265" cy="322" r="6" fill="url(#rimG)"/>
+      <circle cx="265" cy="322" r="3" fill="#f2d25e"/>
+      <!-- brake caliper -->
+      <path d="M231,282 Q218,297 218,322 Q218,344 231,358" fill="none" stroke="#e8192c" stroke-width="3.5" stroke-linecap="round" opacity=".62"/>
+
+      <!-- ── FRONT WHEEL ── -->
+      <circle cx="678" cy="322" r="74" fill="#070707"/>
+      <circle cx="678" cy="322" r="68" fill="#0b0b0b"/>
+      <circle cx="678" cy="322" r="62" fill="none" stroke="#121212" stroke-width="3"/>
+      <circle cx="678" cy="322" r="56" fill="#0e0e0e"/>
+      <circle cx="678" cy="322" r="54" fill="none" stroke="url(#rimG)" stroke-width="4.5"/>
+      <circle cx="678" cy="322" r="52" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2"/>
+      <circle cx="678" cy="322" r="49" fill="url(#rimD)"/>
+      <g transform="translate(678,322)">
+        <g transform="rotate(20)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(92)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(164)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(236)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+        <g transform="rotate(308)"><path d="M0,-7 L-11,-50 Q0,-57 11,-50 L0,-7 Z" fill="url(#rimG)"/><path d="M-5,-50 Q0,-57 5,-50 Z" fill="#f2d25e"/><line x1="-8" y1="-12" x2="-10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/><line x1="8" y1="-12" x2="10" y2="-46" stroke="rgba(0,0,0,0.35)" stroke-width="2.5"/></g>
+      </g>
+      <circle cx="678" cy="322" r="14" fill="#0e0e0e"/>
+      <circle cx="678" cy="322" r="11" fill="none" stroke="url(#rimG)" stroke-width="2"/>
+      <circle cx="678" cy="322" r="6" fill="url(#rimG)"/>
+      <circle cx="678" cy="322" r="3" fill="#f2d25e"/>
+      <path d="M644,282 Q631,297 631,322 Q631,344 644,358" fill="none" stroke="#e8192c" stroke-width="3.5" stroke-linecap="round" opacity=".62"/>
+
+      <!-- wheel arch shadows -->
+      <path d="M194,250 Q198,212 234,210 L308,212 Q334,212 344,254 L194,250 Z" fill="rgba(0,0,0,0.5)"/>
+      <path d="M608,248 Q612,210 648,208 L722,210 Q748,212 758,252 L608,248 Z" fill="rgba(0,0,0,0.5)"/>
+    </svg>
+  </div><!-- end car-wrap -->
+
+</section>
+
+<!-- PINNED STORIES -->
+<div id="pin-wrap">
+  <div class="pin-sticky" id="pinSt">
+    <div class="pin-rule pin-rt"></div>
+    <div class="pin-rule"></div>
+    <div class="ghost-n" id="ghostN">01</div>
+
+    <div class="s-layout">
+      <div>
+        <div class="s-idx" id="sIdx">01 / 04</div>
+        <div class="s-title" id="sTitle">BORN FROM<br><em>SPEED</em></div>
+        <p class="s-body" id="sBody">Every curve carved with intent. Zero to 100 in 2.8 seconds. We don't just build vehicles — we craft visceral experiences that blur the line between machine and motion.</p>
+        <div class="s-bar-w"><div class="s-bar" id="sBar"></div></div>
+      </div>
+      <div class="s-right" id="sRight">
+        <div class="s-metric">
+          <div class="sm-n" id="sm1">2.8s</div>
+          <div class="sm-l" id="sl1">Acceleration</div>
+          <div class="sm-d" id="sd1">0–100 km/h with torque-vectoring AWD system.</div>
+        </div>
+        <div class="s-metric">
+          <div class="sm-n" id="sm2">1,020 HP</div>
+          <div class="sm-l" id="sl2">Output</div>
+          <div class="sm-d" id="sd2">Twin-turbo V8 combined with electric motor hybrid.</div>
+        </div>
+        <div class="s-metric">
+          <div class="sm-n" id="sm3">340 km/h</div>
+          <div class="sm-l" id="sl3">Top Speed</div>
+          <div class="sm-d" id="sd3">Electronically governed. Capable of more.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pg-dots" id="pgDots">
+      <div class="pd on"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div>
+    </div>
+
+    <div class="mq-band">
+      <div class="mq-track">
+        <span>PERFORMANCE</span><span class="dot">◆</span><span>PRECISION</span><span class="dot">◆</span>
+        <span>PASSION</span><span class="dot">◆</span><span>POWER</span><span class="dot">◆</span>
+        <span>PRESTIGE</span><span class="dot">◆</span><span>PERFORMANCE</span><span class="dot">◆</span>
+        <span>PRECISION</span><span class="dot">◆</span><span>PASSION</span><span class="dot">◆</span>
+        <span>POWER</span><span class="dot">◆</span><span>PRESTIGE</span><span class="dot">◆</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHT SECTION -->
+<section id="light">
+  <div class="lt-noise"></div>
+  <div class="lt-bar"></div>
+  <div class="lt-inner">
+    <div>
+      <div class="lt-kick rv">The Phantom GT Series</div>
+      <h2 class="lt-h rv">THE<br>FUTURE<br>IS <em>NOW.</em></h2>
+      <p class="lt-p rv">Aerodynamic mastery meets digital intelligence. Every panel sculpted in the wind tunnel. Every line born from data. This is not transportation — this is transformation.</p>
+      <a href="#hero" class="lt-cta rv">Reserve Your Unit →</a>
+    </div>
+    <div>
+      <div class="spec rv">
+        <div class="spec-tag">Featured Model — 2025 Series</div>
+        <div class="spec-model">ITZFIZZ<br><em>PHANTOM GT</em></div>
+        <div class="spec-badge">47 Units Only</div>
+        <div class="spec-div"></div>
+        <div class="spec-g">
+          <div><div class="sp-n">1,020<small>hp</small></div><div class="sp-l">Power</div><div class="sp-bar"><div class="sp-fill" data-w="95"></div></div></div>
+          <div><div class="sp-n">2.8<small>s</small></div><div class="sp-l">0–100</div><div class="sp-bar"><div class="sp-fill" data-w="98"></div></div></div>
+          <div><div class="sp-n">340<small>km/h</small></div><div class="sp-l">Top Speed</div><div class="sp-bar"><div class="sp-fill" data-w="84"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="ft-head">
+    <div class="ft-kick">Why ITZFIZZ</div>
+    <h2 class="ft-h">ENGINEERED<br><em>OBSESSION</em></h2>
+  </div>
+  <div class="ft-grid">
+    <div class="ft-card"><span class="ft-icon">⚡</span><span class="ft-num">01</span><div class="ft-t">INSTANT TORQUE</div><p class="ft-d">Hybrid powertrain delivers 1,250 Nm from zero RPM. The electric motor fills every gap the combustion engine leaves.</p></div>
+    <div class="ft-card"><span class="ft-icon">🧠</span><span class="ft-num">02</span><div class="ft-t">AI CHASSIS</div><p class="ft-d">48 sensors feed real-time data to an adaptive AI recalibrating suspension, brake bias, and steering every 2 milliseconds.</p></div>
+    <div class="ft-card"><span class="ft-icon">🏆</span><span class="ft-num">03</span><div class="ft-t">RACE HERITAGE</div><p class="ft-d">Born from 12 consecutive podiums. Motorsport DNA flows through every carbon-titanium component we produce.</p></div>
+    <div class="ft-card"><span class="ft-icon">🔥</span><span class="ft-num">04</span><div class="ft-t">HAND-BUILT</div><p class="ft-d">Carbon fibre monocoque, 3D-printed titanium nodes, hand-welded Inconel exhaust. Signed by its lead engineer.</p></div>
+    <div class="ft-card"><span class="ft-icon">🛡</span><span class="ft-num">05</span><div class="ft-t">BESPOKE ONLY</div><p class="ft-d">Every unit has a unique serial plaque, bespoke color story, and leather interior chosen collaboratively with its owner.</p></div>
+    <div class="ft-card"><span class="ft-icon">🌐</span><span class="ft-num">06</span><div class="ft-t">GLOBAL DELIVERY</div><p class="ft-d">White-glove door-to-door delivery to 67 countries. Pre-delivery inspection by a dedicated factory engineer. Always.</p></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#hero" class="fl"><em>I</em>TZFIZZ</a>
+  <div class="fr">
+    <div class="fr-lnk">
+      <a href="#">Fleet</a><a href="#">Experience</a><a href="#">Careers</a><a href="#">Contact</a>
+    </div>
+    <div class="fr-copy">© 2025 ITZFIZZ Automotive. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── CURSOR
+const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function aC(){cdot.style.left=mx+'px';cdot.style.top=my+'px';rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(aC)})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hover-cur'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hover-cur'));
+});
+
+// ── PARTICLES
+const cv=document.getElementById('pcanvas'),cx2=cv.getContext('2d');
+let W,H,pts=[];
+function rsz(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight}
+rsz();window.addEventListener('resize',rsz);
+class Pt{
+  constructor(){this.reset();this.y=Math.random()*H}
+  reset(){this.x=Math.random()*W;this.y=H+10;this.r=Math.random()*2+.4;this.s=Math.random()*.48+.14;this.op=Math.random()*.48+.07;this.dx=(Math.random()-.5)*.22;this.isR=Math.random()<.2}
+  step(){this.y-=this.s;this.x+=this.dx;if(this.y<-10)this.reset()}
+  draw(){cx2.beginPath();cx2.arc(this.x,this.y,this.r,0,Math.PI*2);cx2.fillStyle=this.isR?`rgba(232,25,44,${this.op})`:`rgba(240,236,228,${this.op})`;cx2.fill()}
+}
+for(let i=0;i<190;i++)pts.push(new Pt());
+(function aP(){cx2.clearRect(0,0,W,H);pts.forEach(p=>{p.step();p.draw()});requestAnimationFrame(aP)})();
+
+// ── LOADER
+const ldF=document.getElementById('ldFill'),ldP=document.getElementById('ldPct');
+const ldL=document.querySelectorAll('#ldLogo span');
+let pct=0;
+const ldT=setInterval(()=>{
+  pct=Math.min(100,pct+Math.random()*3.2+.7);
+  ldF.style.width=pct+'%';
+  ldP.textContent=String(Math.floor(pct)).padStart(3,'0');
+  if(pct>=100){
+    clearInterval(ldT);
+    ldL.forEach((l,i)=>gsap.to(l,{opacity:1,y:0,skewX:0,duration:.58,delay:i*.075,ease:'back.out(2.5)'}));
+    setTimeout(()=>gsap.to('#loader',{opacity:0,duration:.65,delay:.55,onComplete:()=>{
+      document.getElementById('loader').style.display='none';heroIn();
+    }}),950);
+  }
+},26);
+
+// ── HERO INTRO
+function heroIn(){
+  const mob = window.innerWidth <= 860;
+
+  if(mob){
+    // Mobile: CSS already makes everything visible via !important
+    // Just do subtle entrance animations that don't touch opacity
+    gsap.from('#carWrap svg', {y:50, duration:1.1, ease:'power3.out'});
+    gsap.from('#hl1', {y:'108%', duration:.85, delay:.05, ease:'power4.out'});
+    gsap.from('#hl2', {y:'108%', duration:.85, delay:.18, ease:'power4.out'});
+    gsap.from('#hl3', {y:'108%', duration:.85, delay:.3,  ease:'power4.out'});
+    // Subtle fade-up for text block (won't fight !important since opacity starts at 1)
+    gsap.from(['#hSub','#hCtas','#hStats'], {y:16, duration:.7, delay:.5, stagger:.08, ease:'power3.out'});
+  } else {
+    // Desktop: full cinematic entrance
+    gsap.fromTo('#carWrap svg', {x:100, opacity:0}, {x:0, opacity:1, duration:1.4, ease:'power3.out'});
+    gsap.to('#hEb',    {opacity:1, y:0,  duration:.7,  delay:.2,  ease:'power3.out'});
+    gsap.to('#hl1',    {y:'0%',          duration:1.1, delay:.3,  ease:'power4.out'});
+    gsap.to('#hl2',    {y:'0%',          duration:1.1, delay:.44, ease:'power4.out'});
+    gsap.to('#hl3',    {y:'0%',          duration:1.1, delay:.58, ease:'power4.out'});
+    gsap.to('#hSub',   {opacity:1, y:0,  duration:.8,  delay:.85, ease:'power3.out'});
+    gsap.to('#hCtas',  {opacity:1, y:0,  duration:.7,  delay:1.0, ease:'power3.out'});
+    gsap.to('#hStats', {opacity:1,       duration:.7,  delay:1.15,ease:'power3.out'});
+    gsap.to('#scrHint',{opacity:1,       duration:.6,  delay:1.5, ease:'power3.out'});
+  }
+}
+
+// ── HERO PARALLAX — desktop only, NEVER on mobile
+if(window.innerWidth > 860){
+  gsap.to('#carWrap svg', {x:160, rotate:4, scale:.72, opacity:0,
+    scrollTrigger:{trigger:'#hero', start:'top top', end:'bottom top', scrub:1.8}});
+  gsap.to('#hl1', {x:-80, opacity:0,
+    scrollTrigger:{trigger:'#hero', start:'top top', end:'72% top', scrub:1.1}});
+  gsap.to('#hl2', {x:-44, opacity:0,
+    scrollTrigger:{trigger:'#hero', start:'top top', end:'82% top', scrub:1.4}});
+  gsap.to('#hl3', {x:-22, opacity:0,
+    scrollTrigger:{trigger:'#hero', start:'top top', end:'90% top', scrub:1.8}});
+  gsap.to('#hSub', {opacity:0, y:28,
+    scrollTrigger:{trigger:'#hero', start:'20% top', end:'65% top', scrub:1}});
+  gsap.to('#hStats', {opacity:0, y:36,
+    scrollTrigger:{trigger:'#hero', start:'12% top', end:'55% top', scrub:1}});
+  gsap.to('#hCtas', {opacity:0,
+    scrollTrigger:{trigger:'#hero', start:'16% top', end:'50% top', scrub:1}});
+}
+
+window.addEventListener('resize', () => ScrollTrigger.refresh());
+
+// ── PINNED
+const stories=[
+  {idx:'01 / 04',ghost:'01',title:'BORN FROM<br><em>SPEED</em>',body:'Every curve carved with intent. Zero to 100 in 2.8 seconds. We craft visceral experiences that blur the line between machine and motion.',n1:['2.8s','Acceleration','0–100 km/h with torque-vectoring AWD.'],n2:['1,020 HP','Output','Twin-turbo V8 + electric motor hybrid.'],n3:['340 km/h','Top Speed','Electronically governed. Capable of more.']},
+  {idx:'02 / 04',ghost:'02',title:'DRIVEN BY<br><em>DATA</em>',body:'48 sensors feed real-time telemetry to adaptive AI. The car learns your style, predicts road conditions, and recalibrates every 2 milliseconds.',n1:['48','Sensors','Real-time data fed to AI chassis control.'],n2:['2ms','Response','AI suspension recalibration interval.'],n3:['99.8%','Uptime','Zero system failures reported in testing.']},
+  {idx:'03 / 04',ghost:'03',title:'FORGED IN<br><em>FIRE</em>',body:'Carbon-titanium monocoque. 3D-printed suspension nodes. Hand-welded Inconel exhaust. Every component at the frontier of materials science.',n1:['CF','Monocoque','Carbon-fibre tub — 42 kg lighter than steel.'],n2:['Ti','Nodes','3D-printed titanium suspension mounts.'],n3:['826°C','Exhaust','Hand-welded Inconel withstands race temps.']},
+  {idx:'04 / 04',ghost:'04',title:'BUILT FOR<br><em>LEGEND</em>',body:'Only 47 units. Each carries a serialised plaque, bespoke color story, and the heartbeat signature of its lead engineer in the dashboard.',n1:['47','Units Only','Each serialised, signed, and bespoke.'],n2:['100%','Bespoke','Color, interior, and spec fully custom.'],n3:['67','Countries','White-glove delivery worldwide.']}
+];
+let curS=-1;
+function setS(i){
+  if(i===curS)return;curS=i;const s=stories[i];
+  const els=['#sIdx','#sTitle','#sBody','#sRight'];
+  gsap.to(els,{opacity:0,y:-18,duration:.22,ease:'power2.in',onComplete:()=>{
+    document.getElementById('sIdx').textContent=s.idx;
+    document.getElementById('sTitle').innerHTML=s.title;
+    document.getElementById('sBody').textContent=s.body;
+    document.getElementById('ghostN').textContent=s.ghost;
+    document.getElementById('sm1').textContent=s.n1[0];document.getElementById('sl1').textContent=s.n1[1];document.getElementById('sd1').textContent=s.n1[2];
+    document.getElementById('sm2').textContent=s.n2[0];document.getElementById('sl2').textContent=s.n2[1];document.getElementById('sd2').textContent=s.n2[2];
+    document.getElementById('sm3').textContent=s.n3[0];document.getElementById('sl3').textContent=s.n3[1];document.getElementById('sd3').textContent=s.n3[2];
+    document.querySelectorAll('.pd').forEach((d,j)=>d.classList.toggle('on',j===i));
+    const b=document.getElementById('sBar');b.style.width='0%';setTimeout(()=>b.style.width='100%',60);
+    gsap.fromTo('#ghostN',{scale:1.3,opacity:0},{scale:1,opacity:1,duration:.48,ease:'power3.out'});
+    gsap.to(els,{opacity:1,y:0,duration:.4,ease:'power3.out',stagger:.045});
+  }});
+}
+ScrollTrigger.create({
+  trigger:'#pin-wrap',start:'top top',end:'bottom bottom',pin:'#pinSt',scrub:true,
+  onUpdate:self=>{
+    const i=Math.min(3,Math.floor(self.progress*4));
+    setS(i);
+    gsap.set('#ghostN',{x:self.progress*-70,y:self.progress*28});
+  }
+});
+
+// ── LIGHT SECTION
+gsap.utils.toArray('.rv').forEach((el,i)=>{
+  gsap.fromTo(el,{opacity:0,y:50},{opacity:1,y:0,duration:.9,delay:i*.11,ease:'power3.out',
+    scrollTrigger:{trigger:'#light',start:'top 78%',once:true}});
+});
+ScrollTrigger.create({
+  trigger:'#light',start:'top 70%',once:true,
+  onEnter:()=>{
+    document.querySelectorAll('.sp-fill').forEach((b,i)=>{
+      const w=b.dataset.w+'%';b.style.width='0%';
+      setTimeout(()=>{b.style.transition=`width 1.3s cubic-bezier(.16,1,.3,1) ${i*.22}s`;b.style.width=w},80);
+    });
+  }
+});
+
+// ── FEATURES
+gsap.utils.toArray('.ft-card').forEach((el,i)=>{
+  gsap.fromTo(el,{opacity:0,y:56},{opacity:1,y:0,duration:.82,delay:i*.1,ease:'power3.out',
+    scrollTrigger:{trigger:'#features',start:'top 80%',once:true}});
+});
+</script>
+</body>
+</html>
