@@ -4,7 +4,7 @@ A premium scroll-driven hero section with smooth GSAP animations, inspired by mo
 
 ## 🔗 Live Demo
 
-**[View Live Demo](https://balajibhargav6.github.io/Itzfizz-assignment/)**
+**[View Live Demo](https://itzfizz-assignment.vercel.app/)**
 
 ## 📖 Project Overview
 
